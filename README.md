@@ -1,79 +1,79 @@
-# Kinemo Alert — Backend BC03 (DDD + CQRS)
+# Kinemo Alert - Backend
 
-Java 21 · Spring Boot 3.5.16 · Maven · Spring Data JPA · H2 (local) · Spring Security.
+Backend de Kinemo desarrollado con Java 21, Spring Boot, Maven y Spring Data JPA.
 
-This is the backend for **BC03 Crisis Alert Management**, isolated from the Angular frontend in the `backend/` directory. It is designed to be moved into a dedicated backend repository when the organization creates one.
+En este repositorio estamos trabajando la API de la aplicación. Por ahora, la parte desarrollada es **Crisis Alert Management (BC03)**, encargada de registrar y dar seguimiento a las alertas de cuidado.
 
-## Architecture (DDD)
+## ¿Qué hace el BC03?
 
-```text
-src/main/java/com/neurosync/kinemo/
-├── KinemoBackendApplication.java
-├── crisisalert/
-│   ├── domain/
-│   │   ├── model/                 # CrisisAlert aggregate, status, domain rules
-│   │   └── repository/            # Persistence ports (no Spring/JPA)
-│   ├── application/
-│   │   ├── command/               # Write intents (CQRS)
-│   │   ├── query/                 # Read intents (CQRS)
-│   │   ├── handler/               # Command and query handlers
-│   │   ├── dto/
-│   │   └── port/                  # BC02 authorization boundary (ACL)
-│   ├── infrastructure/
-│   │   ├── persistence/           # JPA entities & repository adapters
-│   │   └── carenetwork/           # Temporary BC02 authorization adapter
-│   └── interfaces/
-│       └── rest/                  # REST API and error mapping
-└── infrastructure/config/         # Local demo identity and database fixtures
+- Permite activar una alerta SOS para un niño.
+- Verifica que el cuidador tenga autorización.
+- Muestra el historial de alertas.
+- Permite cambiar el estado de una alerta: `ACTIVE → ATTENDED → CLOSED`.
+- Guarda avisos internos para otros cuidadores autorizados.
+
+Los avisos todavía se guardan en la base de datos; **no se envían SMS ni notificaciones push reales**.
+
+## Estructura del código
+
+Organizamos el módulo siguiendo DDD y separando comandos y consultas con CQRS:
+
+- `domain`: modelos y reglas de negocio.
+- `application`: casos de uso, comandos y consultas.
+- `infrastructure`: conexión con la base de datos y adaptadores.
+- `interfaces/rest`: endpoints que utiliza el frontend.
+
+## Cómo ejecutarlo
+
+1. Abrir este repositorio en **IntelliJ IDEA**.
+2. Importar `pom.xml` como proyecto Maven y seleccionar **JDK 21**.
+3. Ejecutar `KinemoBackendApplication` con el perfil `local`. En la configuración de ejecución se puede agregar esta opción de VM:
+
+   ```text
+   -Dspring.profiles.active=local
+   ```
+
+4. La API estará disponible en `http://localhost:8080`.
+5. Para probar las solicitudes, abrir `kinemo-alert.http` desde IntelliJ.
+
+También se pueden ejecutar las pruebas con:
+
+```bash
+mvn test
 ```
 
-**DDD:** the domain is framework-independent; JPA exists only in infrastructure. The aggregate enforces `ACTIVE → ATTENDED → CLOSED`. **CQRS:** separate command/query records and handlers. **Anti-Corruption Layer:** BC03 depends on `CareNetworkAuthorizationPort` instead of on the real BC02 implementation. The database includes a uniqueness constraint on `(child_id, open_slot)` so only one non-closed alert may exist per child.
+### Usuarios de prueba
 
-## Open and run in IntelliJ IDEA
+Solo funcionan con el perfil `local`:
 
-1. Open the `backend` directory as a project, or choose the `backend/pom.xml` file and import it as Maven.
-2. Configure **Project SDK: Java 21** and let IntelliJ download Maven dependencies.
-3. Select `KinemoBackendApplication` → **Run → Edit Configurations**.
-4. Set **Active profiles** to `local` (or add VM options: `-Dspring.profiles.active=local`).
-5. Run the application. Server URL: `http://localhost:8080`.
-6. Open `kinemo-alert.http` in IntelliJ and run the requests using the green play icons.
-7. Run tests via Maven: `mvn test`.
+| Usuario | Contraseña |
+|---|---|
+| `caregiver-alert-001` | `demo123` |
+| `caregiver-alert-002` | `demo123` |
 
-## Local-only demo credentials
+Ambos tienen acceso al niño `child-001` en los datos de prueba. **Estas cuentas no deben utilizarse en un servidor público.**
 
-- `caregiver-alert-001` / `demo123`
-- `caregiver-alert-002` / `demo123`
+## Endpoints
 
-Both caregivers are authorized for `child-001` in seeded local H2 data. Credentials exist only with the `local` profile. **All API requests are denied when the `local` profile is not active**, until authentication through BC01 is implemented. Do not expose the local profile to the internet.
-
-## REST endpoints
-
-| Method | Path | Description |
+| Método | Ruta | Uso |
 |---|---|---|
-| POST | `/api/v1/crisis-alerts` | Create SOS alert (201) |
-| GET | `/api/v1/crisis-alerts?childId=child-001` | View child alerts |
-| PATCH | `/api/v1/crisis-alerts/{id}/attend` | Mark alert as attended |
-| PATCH | `/api/v1/crisis-alerts/{id}/close` | Close attended alert |
-| GET | `/api/v1/crisis-alerts/notifications` | View authenticated caregiver's internal notices |
+| POST | `/api/v1/crisis-alerts` | Crear una alerta |
+| GET | `/api/v1/crisis-alerts?childId=child-001` | Ver alertas del niño |
+| PATCH | `/api/v1/crisis-alerts/{id}/attend` | Marcar como atendida |
+| PATCH | `/api/v1/crisis-alerts/{id}/close` | Cerrar una alerta |
+| GET | `/api/v1/crisis-alerts/notifications` | Consultar avisos internos |
 
-Create request:
+Ejemplo para crear una alerta:
+
 ```json
-{"childId":"child-001","description":"Necesita acompañamiento"}
+{
+  "childId": "child-001",
+  "description": "Necesita acompañamiento"
+}
 ```
 
-The server obtains the caregiver identity from the authenticated principal, **not from the request body**. API errors use a stable `code` and `message` field. All operations require authentication.
+## Pendiente
 
-## Integration requirements and known limits
+Falta conectar este backend con el frontend Angular, que actualmente utiliza JSON Server. También debemos integrar la autenticación del BC01 y la red de cuidadores del BC02.
 
-- The frontend BC03 currently uses JSON Server on `localhost:3000`. To connect it to this API, replace its infrastructure HTTP repository and map the response DTOs. Do **not** remove the existing Angular domain/application/presentation separation.
-- The internal notice table stores `IN_APP/QUEUED` messages; there is **no real SMS, push delivery, or emergency dispatch**. The response's `queuedNotices` count is not proof of delivery.
-- Real BC02 integration must replace the temporary authorization adapter; real BC01 integration must replace local Basic auth. Never deploy local demo credentials.
-- H2 is an ephemeral development database and is not intended for production.
-- Spring Boot 3.5.16 is the final community-supported 3.5.x patch. Upgrade to a currently supported Spring Boot line before commercial deployment.
-- Clinical advice, automatic diagnosis, child-worn devices and real-time wearable triggers are outside this BC's scope.
-- Use proper HTTPS, production DB migrations, observability, rate limits, data-retention policy and security reviews before deployment.
-- This implementation must not be presented as production-ready until dependencies are installed and the test suite passes in IntelliJ/CI.
-
-## Test coverage
-
-Unit tests cover immutable aggregate lifecycle and validation. Integration tests use the `local` profile, MockMvc, real H2, repository adapters, security and notification queue.
+Por ahora usamos H2 para las pruebas locales. El backend aún no está listo para desplegarse como servicio público.
