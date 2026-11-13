@@ -38,14 +38,19 @@ public class CareNetworkInvitation {
     }
 
     public void accept() {
-        this.status = InvitationStatus.ACCEPTED;
+        if (!isValid()) {
+            throw new IllegalStateException("Invitation is not valid");
+        }
+        status = InvitationStatus.ACCEPTED;
     }
 
     public void expire() {
-        this.status = InvitationStatus.EXPIRED;
+        if (status == InvitationStatus.PENDING) {
+            status = InvitationStatus.EXPIRED;
+        }
     }
 
     public boolean isValid() {
-        return LocalDateTime.now().isBefore(expiresAt);
+        return status == InvitationStatus.PENDING && LocalDateTime.now().isBefore(expiresAt);
     }
 }

@@ -3,6 +3,7 @@ package com.neurosync.kinemo.child.domain.model.aggregates;
 import com.neurosync.kinemo.child.domain.model.entities.CareNetwork;
 import com.neurosync.kinemo.child.domain.model.entities.CareNetworkInvitation;
 import com.neurosync.kinemo.child.domain.model.entities.ClinicalProfile;
+import com.neurosync.kinemo.child.domain.model.events.ClinicalProfileUpdated;
 import com.neurosync.kinemo.child.domain.model.valueobjects.CareNetworkRole;
 import com.neurosync.kinemo.child.domain.model.valueobjects.PermissionSet;
 import com.neurosync.kinemo.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
@@ -42,9 +43,9 @@ public class Child extends AbstractDomainAggregateRoot<Child> {
     }
 
     public ClinicalProfile updatedClinicalProfile(String needs, String triggers, String regulators) {
-        ClinicalProfile clinicalProfile = new ClinicalProfile();
-        clinicalProfile.updateProfile(needs, triggers, regulators);
-        return clinicalProfile;
+        this.clinicalProfile.updateProfile(needs, triggers, regulators);
+        registerDomainEvent(new ClinicalProfileUpdated(this, this.id, LocalDateTime.now()));
+        return this.clinicalProfile;
     }
 
     public void inviteCaregiver(String email, CareNetworkRole role, PermissionSet permissions) {

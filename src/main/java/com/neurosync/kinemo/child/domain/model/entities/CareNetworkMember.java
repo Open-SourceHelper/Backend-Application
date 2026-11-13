@@ -17,6 +17,17 @@ public class CareNetworkMember {
     private LocalDateTime joinedAt;
     private LocalDateTime revokedAt;
 
+    public CareNetworkMember(Long caregiverId, CareNetworkRole role) {
+        if (caregiverId == null || role == null) {
+            throw new IllegalArgumentException("Caregiver ID and role cannot be null");
+        }
+
+        this.caregiverId = caregiverId;
+        this.role = role;
+        this.status = MemberStatus.ACTIVE;
+        this.joinedAt = LocalDateTime.now();
+    }
+
     private void validatePermissions(PermissionSet permissions) {
         if (permissions == null) {
             throw new IllegalArgumentException("Permissions cannot be null");
