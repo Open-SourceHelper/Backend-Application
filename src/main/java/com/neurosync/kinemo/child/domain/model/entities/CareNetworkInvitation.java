@@ -2,6 +2,7 @@ package com.neurosync.kinemo.child.domain.model.entities;
 
 import com.neurosync.kinemo.child.domain.model.valueobjects.InvitationStatus;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
 
 @Getter
