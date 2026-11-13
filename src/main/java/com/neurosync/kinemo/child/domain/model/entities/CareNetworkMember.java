@@ -3,9 +3,11 @@ package com.neurosync.kinemo.child.domain.model.entities;
 import com.neurosync.kinemo.child.domain.model.valueobjects.CareNetworkRole;
 import com.neurosync.kinemo.child.domain.model.valueobjects.MemberStatus;
 import com.neurosync.kinemo.child.domain.model.valueobjects.PermissionSet;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class CareNetworkMember {
     private Long id;
     private Long caregiverId;
