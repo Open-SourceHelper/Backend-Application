@@ -17,4 +17,20 @@ public class ClinicalProfile {
         this.regulators = regulators;
         this.updateTime = LocalDateTime.now();
     }
+
+    public static ClinicalProfile reconstitute(
+            Long id,
+            String specialNeeds,
+            String triggers,
+            String regulators,
+            LocalDateTime updateTime
+    ) {
+        ClinicalProfile profile = new ClinicalProfile();
+        profile.id = id;
+        profile.specialNeeds = specialNeeds;
+        profile.triggers = triggers;
+        profile.regulators = regulators;
+        profile.updateTime = updateTime;
+        return profile;
+    }
 }

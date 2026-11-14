@@ -53,4 +53,26 @@ public class CareNetworkInvitation {
     public boolean isValid() {
         return status == InvitationStatus.PENDING && LocalDateTime.now().isBefore(expiresAt);
     }
+
+    public static CareNetworkInvitation reconstitute(
+            Long id,
+            String inviteeEmail,
+            InvitationStatus status,
+            LocalDateTime createdAt,
+            LocalDateTime expiresAt,
+            CareNetworkRole role,
+            PermissionSet permissions
+    ) {
+        if (status == null || createdAt == null || expiresAt == null) {
+            throw new IllegalArgumentException("Persisted invitation status and timestamps cannot be null");
+        }
+
+        CareNetworkInvitation invitation =
+                new CareNetworkInvitation(inviteeEmail, role, permissions);
+        invitation.id = id;
+        invitation.status = status;
+        invitation.createdAt = createdAt;
+        invitation.expiresAt = expiresAt;
+        return invitation;
+    }
 }

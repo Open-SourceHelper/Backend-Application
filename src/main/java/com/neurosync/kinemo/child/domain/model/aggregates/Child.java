@@ -63,4 +63,31 @@ public class Child extends AbstractDomainAggregateRoot<Child> {
     public void revokeCaregiverAccess(Long memberId) {
         careNetwork.findMemberById(memberId).revokeAccess();
     }
+
+    public static Child reconstitute(
+            Long id,
+            Long parentId,
+            String firstName,
+            String lastName,
+            LocalDate birthDate,
+            LocalDateTime createdAt,
+            ClinicalProfile clinicalProfile,
+            CareNetwork careNetwork
+    ) {
+        if (parentId == null || firstName == null || lastName == null || birthDate == null
+                || createdAt == null || clinicalProfile == null || careNetwork == null) {
+            throw new IllegalArgumentException("Persisted child data cannot contain null required values");
+        }
+
+        Child child = new Child();
+        child.id = id;
+        child.parentId = parentId;
+        child.firstName = firstName;
+        child.lastName = lastName;
+        child.birthDate = birthDate;
+        child.createdAt = createdAt;
+        child.clinicalProfile = clinicalProfile;
+        child.careNetwork = careNetwork;
+        return child;
+    }
 }

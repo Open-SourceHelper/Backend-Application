@@ -64,4 +64,16 @@ public class CareNetwork {
     public List<CareNetworkMember> getMembers() {
         return List.copyOf(members);
     }
+
+    public static CareNetwork reconstitute(Long id, String name, LocalDateTime createdAt) {
+        if (name == null || createdAt == null) {
+            throw new IllegalArgumentException("Persisted care network name and creation time cannot be null");
+        }
+
+        CareNetwork careNetwork = new CareNetwork();
+        careNetwork.id = id;
+        careNetwork.name = name;
+        careNetwork.createdAt = createdAt;
+        return careNetwork;
+    }
 }

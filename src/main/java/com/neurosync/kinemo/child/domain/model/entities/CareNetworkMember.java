@@ -64,4 +64,26 @@ public class CareNetworkMember {
     public boolean hasAccess() {
         return this.status == MemberStatus.ACTIVE;
     }
+
+    public static CareNetworkMember reconstitute(
+            Long id,
+            Long caregiverId,
+            CareNetworkRole role,
+            PermissionSet permissions,
+            MemberStatus status,
+            LocalDateTime joinedAt,
+            LocalDateTime revokedAt
+    ) {
+        if (status == null || joinedAt == null) {
+            throw new IllegalArgumentException("Persisted member status and joined time cannot be null");
+        }
+
+        CareNetworkMember member = new CareNetworkMember(caregiverId, role);
+        member.id = id;
+        member.permissions = permissions;
+        member.status = status;
+        member.joinedAt = joinedAt;
+        member.revokedAt = revokedAt;
+        return member;
+    }
 }
