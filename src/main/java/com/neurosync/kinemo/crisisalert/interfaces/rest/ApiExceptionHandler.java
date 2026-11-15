@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = CrisisAlertController.class)
 public class ApiExceptionHandler {
     public record ErrorResponse(String code, String message, Instant timestamp) {}
 

@@ -52,6 +52,8 @@ public class AlertQueryHandler {
 
     @Transactional(readOnly = true)
     public List<AlertNotification> inbox(String actorId) {
-        return notifications.findByRecipient(actorId);
+        return notifications.findByRecipient(actorId).stream()
+                .filter(notice -> careNetwork.findAuthorizedCaregiverIds(notice.childId()).contains(actorId))
+                .toList();
     }
 }
