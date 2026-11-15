@@ -3,7 +3,7 @@ import com.neurosync.kinemo.clinicalguidanceroutine.application.UseCaseException
 import com.neurosync.kinemo.clinicalguidanceroutine.application.port.VisualStoragePort;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-@Component @Profile("!local")
+@Component @Profile("!local & !evaluation")
 public class DisabledVisualStorageAdapter implements VisualStoragePort {
     private UseCaseException disabled(){return new UseCaseException("STORAGE_NOT_CONFIGURED","Configure un almacenamiento privado antes de desplegar.");}
     public StoredVisual store(String file,byte[] bytes){throw disabled();}

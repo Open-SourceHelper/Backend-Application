@@ -6,10 +6,16 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
-@Component @Profile("local")
+@Component @Profile("local & !evaluation")
 public class LocalVisualStorageAdapter implements VisualStoragePort {
     private final Path folder=Path.of(System.getProperty("user.dir"),".local-bc04-uploads").toAbsolutePath();
     public StoredVisual store(String filename,byte[] content) {
+        StoredVisual visual = describe(filename, content);
+        try {Files.createDirectories(folder);Files.write(folder.resolve(visual.key()),content,StandardOpenOption.CREATE_NEW);}
+        catch(IOException e){throw new UseCaseException("STORAGE_ERROR","No fue posible guardar la imagen.");}
+        return visual;
+    }
+    static StoredVisual describe(String filename, byte[] content) {
         if(content==null||content.length==0||content.length>2*1024*1024)
             throw new UseCaseException("INVALID_UPLOAD","La imagen debe pesar entre 1 byte y 2 MB.");
         boolean png=content.length>8&&(content[0]&255)==137&&content[1]==80&&content[2]==78&&content[3]==71&&
@@ -22,8 +28,6 @@ public class LocalVisualStorageAdapter implements VisualStoragePort {
         if(clean.length()>180)clean=clean.substring(0,180);
         String type=png?"image/png":"image/jpeg";
         String key=UUID.randomUUID().toString()+(png?".png":".jpg");
-        try {Files.createDirectories(folder);Files.write(folder.resolve(key),content,StandardOpenOption.CREATE_NEW);}
-        catch(IOException e){throw new UseCaseException("STORAGE_ERROR","No fue posible guardar la imagen.");}
         return new StoredVisual(key,clean,type);
     }
     public byte[] load(String key){
