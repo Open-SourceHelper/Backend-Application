@@ -1,0 +1,29 @@
+server:
+  address: 0.0.0.0
+  port: ${PORT:10000}
+spring:
+  application:
+    name: Kinemo Public Demo
+  datasource:
+    url: jdbc:h2:mem:kinemo-public-demo
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  h2:
+    console:
+      enabled: false
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+kinemo:
+  public-demo:
+    frontend-origin: ${FRONTEND_ORIGIN:https://frontend-application-1.onrender.com}
