@@ -1,17 +1,13 @@
 package com.neurosync.kinemo.child.interfaces.rest;
 
 import com.neurosync.kinemo.child.application.ChildProfiles;
-import com.neurosync.kinemo.child.application.VerifiedChildAccount;
-import com.neurosync.kinemo.child.domain.model.entities.CareNetwork;
 import com.neurosync.kinemo.child.domain.model.entities.ClinicalProfile;
-import com.neurosync.kinemo.child.domain.model.valueobjects.PermissionSet;
 import com.neurosync.kinemo.child.interfaces.rest.resources.ChildResource;
 import com.neurosync.kinemo.child.interfaces.rest.resources.CreateChildResource;
 import com.neurosync.kinemo.child.interfaces.rest.resources.UpdateChildResource;
 import com.neurosync.kinemo.child.interfaces.rest.resources.UpdateClinicalProfileResource;
 import com.neurosync.kinemo.child.interfaces.rest.transform.ChildResourceAssembler;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/children")
@@ -92,62 +87,6 @@ public class ChildrenController {
         );
     }
 
-    @GetMapping("/{id}/care-network")
-    public CareNetwork network(Principal principal, @PathVariable Long id) {
-        return profiles.network(actor(principal), id);
-    }
-
-    @PostMapping("/{id}/care-network/invitations")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CareNetwork invite(
-            Principal principal,
-            @PathVariable Long id,
-            @Valid @RequestBody InvitationInput input
-    ) {
-        return profiles.invite(
-                actor(principal),
-                id,
-                input.email().strip(),
-                new PermissionSet(input.permissions())
-        );
-    }
-
-    @PostMapping("/{id}/care-network/invitations/{invitationId}/accept")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void accept(
-            Principal principal,
-            @PathVariable Long id,
-            @PathVariable Long invitationId
-    ) {
-        Long account = actor(principal);
-        String email = principal instanceof VerifiedChildAccount verified
-                ? verified.verifiedEmail()
-                : null;
-
-        profiles.accept(account, email, id, invitationId);
-    }
-
-    @PutMapping("/{id}/care-network/members/{memberId}/permissions")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePermissions(
-            Principal principal,
-            @PathVariable Long id,
-            @PathVariable Long memberId,
-            @Valid @RequestBody PermissionsInput input
-    ) {
-        profiles.changeMember(actor(principal), id, memberId, new PermissionSet(input.permissions()));
-    }
-
-    @DeleteMapping("/{id}/care-network/members/{memberId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void revoke(
-            Principal principal,
-            @PathVariable Long id,
-            @PathVariable Long memberId
-    ) {
-        profiles.changeMember(actor(principal), id, memberId, null);
-    }
-
     private Long actor(Principal principal) {
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
@@ -169,14 +108,4 @@ public class ChildrenController {
         }
     }
 
-    public record InvitationInput(
-            @NotBlank @Email @Size(max = 254) String email,
-            @NotNull @Size(max = 20) Set<@NotBlank @Size(max = 50) String> permissions
-    ) {
-    }
-
-    public record PermissionsInput(
-            @NotNull @Size(max = 20) Set<@NotBlank @Size(max = 50) String> permissions
-    ) {
-    }
 }

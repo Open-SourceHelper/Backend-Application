@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes = ChildrenController.class)
+@RestControllerAdvice(assignableTypes = {
+        ChildrenController.class,
+        CareNetworkController.class
+})
 public class ChildStatusHandler {
     @ExceptionHandler(ResponseStatusException.class)
     ProblemDetail status(ResponseStatusException error) { return error.getBody(); }
