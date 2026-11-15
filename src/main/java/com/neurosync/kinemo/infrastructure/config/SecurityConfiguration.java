@@ -55,7 +55,13 @@ public class SecurityConfiguration {
                 User.withUsername("parent-demo-001").password(encoder.encode("demo123"))
                         .roles("PARENT").build(),
                 User.withUsername("psychologist-guide-001").password(encoder.encode("demo123"))
-                        .roles("PSYCHOLOGIST").build()
+                        .roles("PSYCHOLOGIST").build(),
+                User.withUsername(Long.toString(LocalIntegrationDemo.FAMILY))
+                        .password(encoder.encode("demo123")).roles("PARENT").build(),
+                User.withUsername(Long.toString(LocalIntegrationDemo.CAREGIVER))
+                        .password(encoder.encode("demo123")).roles("CAREGIVER").build(),
+                User.withUsername(Long.toString(LocalIntegrationDemo.PSYCHOLOGIST))
+                        .password(encoder.encode("demo123")).roles("PSYCHOLOGIST").build()
         );
     }
 
