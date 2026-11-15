@@ -23,3 +23,9 @@ Para las operaciones de demostración del niño `child-001`, usa HTTP Basic. Las
 BC03, BC04 y BC05 consultan la red de cuidado para aplicar los permisos vigentes. BC05 también comprueba que la alerta esté cerrada y que el profesional esté asignado al niño. La prueba de integración comprueba el efecto de la revocación en los tres módulos.
 
 Fuera del perfil `local`, el acceso a la API permanece bloqueado hasta integrar IAM. La aceptación real de invitaciones necesita una cuenta con correo verificado. El perfil `dev` requiere `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`. El perfil `prod` valida que el esquema JPA ya exista.
+
+## Prueba desde Angular
+
+Con el perfil `local`, el backend crea un perfil infantil compartido y asigna tres cuentas de prueba. La sesión de Angular se obtiene en `GET /api/v1/local-demo/session` con HTTP Basic. Usa `7001` para familia, `7002` para cuidador y `7003` para psicóloga, con contraseña `demo123`. Estas cuentas y el endpoint de sesión están disponibles en el perfil `local`.
+
+En el frontend, ejecuta `npm start` y abre `http://localhost:4200/backend-local`. Angular reenvía las solicitudes de esa vista a Spring Boot en el puerto 8080.
