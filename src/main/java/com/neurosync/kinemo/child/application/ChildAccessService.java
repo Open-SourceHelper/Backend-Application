@@ -22,7 +22,11 @@ public class ChildAccessService {
     }
 
     public boolean isOwner(String childId, String accountId) {
-        return child(childId).map(value -> value.getParentId().toString().equals(accountId)).orElse(false);
+        return ownerId(childId).filter(owner -> owner.equals(accountId)).isPresent();
+    }
+
+    public Optional<String> ownerId(String childId) {
+        return child(childId).map(value -> value.getParentId().toString());
     }
 
     public List<String> activeCaregivers(String childId) {
