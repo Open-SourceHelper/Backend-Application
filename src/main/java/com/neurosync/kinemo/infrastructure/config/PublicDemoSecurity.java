@@ -14,7 +14,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@Profile("public-demo")
+@Profile("public-demo & !evaluation")
 class PublicDemoSecurity {
     @Bean
     SecurityFilterChain publicDemoSecurityChain(HttpSecurity http,

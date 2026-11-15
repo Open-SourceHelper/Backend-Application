@@ -1,0 +1,22 @@
+server:
+  port: ${PORT:10000}
+  address: 0.0.0.0
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${EVAL_JDBC_URL}
+    username: ${EVAL_DB_USER}
+    password: ${EVAL_DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+evaluation:
+  frontend-origin: ${EVAL_FRONTEND_ORIGIN}
+  family-password: ${EVAL_FAMILY_PASSWORD}
+  caregiver-password: ${EVAL_CAREGIVER_PASSWORD}
+  psychologist-password: ${EVAL_PSYCHOLOGIST_PASSWORD}

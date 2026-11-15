@@ -23,7 +23,7 @@ import java.util.List;
 public class SecurityConfiguration {
     /** Demonstration-only HTTP Basic; never activate in public deployments. */
     @Bean
-    @Profile("local & !public-demo")
+    @Profile("local & !public-demo & !evaluation")
     SecurityFilterChain localSecurity(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -37,14 +37,14 @@ public class SecurityConfiguration {
 
     /** Fail closed: production authentication is owned by BC01 and not yet integrated. */
     @Bean
-    @Profile("!local & !public-demo")
+    @Profile("!local & !public-demo & !evaluation")
     SecurityFilterChain lockedSecurity(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth.anyRequest().denyAll());
         return http.build();
     }
 
     @Bean
-    @Profile("local & !public-demo")
+    @Profile("local & !public-demo & !evaluation")
     UserDetailsService localDemoUsers() {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         return new InMemoryUserDetailsManager(
@@ -66,7 +66,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Profile("local & !public-demo")
+    @Profile("local & !public-demo & !evaluation")
     CorsConfigurationSource localCorsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));

@@ -10,7 +10,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/local-demo")
-@Profile("local")
+@Profile("local | evaluation")
 class LocalIntegrationSessionController {
     private final LocalIntegrationDemo demo;
 

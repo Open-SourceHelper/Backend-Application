@@ -74,7 +74,7 @@ public class OpenApiConfiguration {
                         .description("Production Environment")
         ));
 
-        boolean local = environment.acceptsProfiles(Profiles.of("local"));
+        boolean local = environment.acceptsProfiles(Profiles.of("local", "evaluation"));
         String securitySchemeName = local ? "basicAuth" : "bearerAuth";
         var scheme = new SecurityScheme().type(SecurityScheme.Type.HTTP)
                 .scheme(local ? "basic" : "bearer");
@@ -87,6 +87,12 @@ public class OpenApiConfiguration {
         openApi.addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components().addSecuritySchemes(securitySchemeName, scheme));
 
+        if (environment.matchesProfiles("evaluation")) {
+            openApi.getComponents().addSecuritySchemes("evaluationIntent", new SecurityScheme()
+                    .type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name("X-Kinemo-Intent")
+                    .description("Enter evaluation when calling write operations."));
+            openApi.getSecurity().getFirst().addList("evaluationIntent");
+        }
         return openApi;
     }
 }

@@ -8,6 +8,8 @@ import com.neurosync.kinemo.clinicalguidanceroutine.infrastructure.access.Spring
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import java.util.Comparator;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Component
-@Profile("local")
+@Profile("local | evaluation")
 class LocalIntegrationDemo implements ApplicationRunner {
     static final long FAMILY = 7001;
     static final long CAREGIVER = 7002;
@@ -24,21 +26,25 @@ class LocalIntegrationDemo implements ApplicationRunner {
     private final ChildProfiles profiles;
     private final ChildAccessService access;
     private final SpringDataProfessionalAssignmentRepository professionals;
+    private final Environment environment;
     private Long childId;
 
     LocalIntegrationDemo(ChildProfiles profiles, ChildAccessService access,
-                         SpringDataProfessionalAssignmentRepository professionals) {
+                         SpringDataProfessionalAssignmentRepository professionals, Environment environment) {
         this.profiles = profiles;
         this.access = access;
         this.professionals = professionals;
+        this.environment = environment;
     }
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        var child = profiles.list(FAMILY).stream().findFirst().orElseGet(() ->
+        var existing = profiles.list(FAMILY).stream().min(Comparator.comparing(child -> child.getId()));
+        var child = existing.orElseGet(() ->
                 profiles.create(FAMILY, "Mateo", "Ejemplo", LocalDate.of(2018, 4, 14)));
         childId = child.getId();
+        if (existing.isPresent() && environment.matchesProfiles("evaluation")) return;
         String id = childId.toString();
         if (!access.activeCaregivers(id).contains(Long.toString(CAREGIVER))) {
             var email = "cuidador@example.test";
