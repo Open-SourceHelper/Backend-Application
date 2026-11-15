@@ -43,6 +43,14 @@ class CrisisAlertIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].status").value("ACTIVE"));
 
+        mvc.perform(get("/api/v1/crisis-alerts/{id}", alertId))
+                .andExpect(status().isUnauthorized());
+
+        mvc.perform(get("/api/v1/crisis-alerts/{id}", alertId)
+                        .with(httpBasic("caregiver-alert-002", "demo123")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(alertId));
+
         mvc.perform(get("/api/v1/crisis-alerts/notifications")
                         .with(httpBasic("caregiver-alert-002", "demo123")))
                 .andExpect(status().isOk())
