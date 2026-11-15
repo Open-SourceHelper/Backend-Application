@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AlertQueryHandler {
@@ -37,6 +38,16 @@ public class AlertQueryHandler {
                     "No tienes acceso a las alertas de este niño.");
         }
         return alerts.findByChildId(childId);
+    }
+
+    @Transactional(readOnly = true)
+    public CrisisAlert find(UUID alertId, String actorId) {
+        var alert = alerts.findById(alertId)
+                .orElseThrow(() -> new UseCaseException("ALERT_NOT_FOUND", "No se encontró la alerta."));
+        if (!careNetwork.findAuthorizedCaregiverIds(alert.childId()).contains(actorId)) {
+            throw new UseCaseException("ALERT_NOT_FOUND", "No se encontró la alerta.");
+        }
+        return alert;
     }
 
     @Transactional(readOnly = true)

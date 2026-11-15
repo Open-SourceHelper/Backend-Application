@@ -68,6 +68,11 @@ public class CrisisAlertController {
                 .map(CrisisAlertResponse::from).toList();
     }
 
+    @GetMapping("/{alertId}")
+    public CrisisAlertResponse find(@PathVariable UUID alertId, Principal principal) {
+        return CrisisAlertResponse.from(queries.find(alertId, principal.getName()));
+    }
+
     @PatchMapping("/{alertId}/attend")
     public CrisisAlertResponse attend(@PathVariable UUID alertId, Principal principal) {
         return CrisisAlertResponse.from(
