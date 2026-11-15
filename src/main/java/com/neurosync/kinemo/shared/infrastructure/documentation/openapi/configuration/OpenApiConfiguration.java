@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+
 import java.util.List;
 
 /**
@@ -38,7 +41,7 @@ public class OpenApiConfiguration {
      * @return configured OpenAPI descriptor
      */
     @Bean
-    public OpenAPI learningPlatformOpenApi() {
+    public OpenAPI learningPlatformOpenApi(Environment environment) {
 
         // General configuration
         var openApi = new OpenAPI();
@@ -71,19 +74,18 @@ public class OpenApiConfiguration {
                         .description("Production Environment")
         ));
 
-        // Add a security scheme
-        final String securitySchemeName = "bearerAuth";
-
-        openApi.addSecurityItem(new SecurityRequirement()
-                        .addList(securitySchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(securitySchemeName,
-                                new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("JWT Bearer token for API authentication")));
+        boolean local = environment.acceptsProfiles(Profiles.of("local"));
+        String securitySchemeName = local ? "basicAuth" : "bearerAuth";
+        var scheme = new SecurityScheme().type(SecurityScheme.Type.HTTP)
+                .scheme(local ? "basic" : "bearer");
+        if (local) {
+            openApi.servers(List.of(new Server().url("/").description("Local API")));
+            scheme.description("Local demonstration account");
+        } else {
+            scheme.bearerFormat("JWT").description("JWT Bearer token for API authentication");
+        }
+        openApi.addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                .components(new Components().addSecuritySchemes(securitySchemeName, scheme));
 
         return openApi;
     }
