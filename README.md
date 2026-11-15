@@ -41,7 +41,7 @@ La demo sirve únicamente datos ficticios en `GET /api/v1/public-demo/snapshot`.
 
 ## Evaluación protegida en Render
 
-Crea una base de datos **Render Postgres** exclusiva para evaluación y un **Web Service** Docker en la misma región. Usa la rama de evaluación, deja la raíz en blanco y configura el Health Check Path en `/health`.
+Crea una base de datos **Render Postgres** exclusiva para evaluación y un **Web Service** Docker en la misma región. Usa la rama `main`, deja la raíz en blanco y configura el Health Check Path en `/health`.
 
 | Variable | Valor |
 | --- | --- |
