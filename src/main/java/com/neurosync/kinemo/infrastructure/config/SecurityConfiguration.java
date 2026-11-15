@@ -50,7 +50,11 @@ public class SecurityConfiguration {
                 User.withUsername("caregiver-alert-001").password(encoder.encode("demo123"))
                         .roles("CAREGIVER").build(),
                 User.withUsername("caregiver-alert-002").password(encoder.encode("demo123"))
-                        .roles("CAREGIVER").build()
+                        .roles("CAREGIVER").build(),
+                User.withUsername("parent-demo-001").password(encoder.encode("demo123"))
+                        .roles("PARENT").build(),
+                User.withUsername("psychologist-guide-001").password(encoder.encode("demo123"))
+                        .roles("PSYCHOLOGIST").build()
         );
     }
 
@@ -59,7 +63,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource localCorsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
-        cors.setAllowedMethods(List.of("GET", "POST", "PATCH", "OPTIONS"));
+        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         cors.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

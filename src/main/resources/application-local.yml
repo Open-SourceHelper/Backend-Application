@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: kinemo-platform
+  datasource:
+    url: jdbc:h2:mem:kinemodb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: false
+server:
+  port: 8080

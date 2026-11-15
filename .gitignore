@@ -5,3 +5,6 @@ target/
 .env
 .env.*
 !.env.example
+
+# BC04 private visual uploads in local profile
+.local-bc04-uploads/
