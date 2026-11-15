@@ -2,8 +2,11 @@ package com.neurosync.kinemo.child.application.commands;
 
 import java.util.List;
 
-public record UpdateMemberPermissionsCommand(Long memberId, List<String> permissions) {
+public record UpdateMemberPermissionsCommand(Long childId, Long memberId, List<String> permissions) {
     public UpdateMemberPermissionsCommand {
+        if (childId == null) {
+            throw new IllegalArgumentException("Child ID cannot be null");
+        }
         if (memberId == null) {
             throw new IllegalArgumentException("Member ID cannot be null");
         }
