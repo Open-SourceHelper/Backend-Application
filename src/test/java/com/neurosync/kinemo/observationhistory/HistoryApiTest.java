@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
 })
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class HistoryApiTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
