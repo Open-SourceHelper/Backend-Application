@@ -8,6 +8,7 @@ import com.neurosync.kinemo.shared.infrastructure.events.DomainEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,16 +16,23 @@ import java.util.Optional;
 public class ChildRepositoryImpl implements ChildRepository {
     private final ChildPersistenceRepository childPersistenceRepository;
     private final DomainEventPublisher domainEventPublisher;
+    private final EntityManager entityManager;
 
     public ChildRepositoryImpl(ChildPersistenceRepository childPersistenceRepository,
-                               DomainEventPublisher domainEventPublisher) {
+                               DomainEventPublisher domainEventPublisher, EntityManager entityManager) {
         this.childPersistenceRepository = childPersistenceRepository;
         this.domainEventPublisher = domainEventPublisher;
+        this.entityManager = entityManager;
     }
 
     @Override
     public Optional<Child> findById(Long id) {
         return childPersistenceRepository.findById(id).map(ChildPersistenceAssembler::toDomainFromPersistence);
+    }
+
+    @Override
+    public Optional<Child> findForUpdate(Long id) {
+        return childPersistenceRepository.lockById(id).map(ChildPersistenceAssembler::toDomainFromPersistence);
     }
 
     @Override
@@ -38,7 +46,8 @@ public class ChildRepositoryImpl implements ChildRepository {
 
     @Override
     public Child save(Child child) {
-        var saved = childPersistenceRepository.save(ChildPersistenceAssembler.toPersistenceFromDomain(child));
+        var saved = childPersistenceRepository.saveAndFlush(ChildPersistenceAssembler.toPersistenceFromDomain(child));
+        entityManager.refresh(saved);
         var savedChild = ChildPersistenceAssembler.toDomainFromPersistence(saved);
         domainEventPublisher.publishAndClearEvents(child);
         return savedChild;
