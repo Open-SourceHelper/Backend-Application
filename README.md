@@ -29,3 +29,12 @@ Fuera del perfil `local`, el acceso a la API permanece bloqueado hasta integrar 
 Con el perfil `local`, el backend crea un perfil infantil compartido y asigna tres cuentas de prueba. La sesión de Angular se obtiene en `GET /api/v1/local-demo/session` con HTTP Basic. Usa `7001` para familia, `7002` para cuidador y `7003` para psicóloga, con contraseña `demo123`. Estas cuentas y el endpoint de sesión están disponibles en el perfil `local`.
 
 En el frontend, ejecuta `npm start` y abre `http://localhost:4200/backend-local`. Angular reenvía las solicitudes de esa vista a Spring Boot en el puerto 8080.
+
+## Demo pública en Render
+
+Crea un **Web Service** en Render desde este repositorio, selecciona **Docker** y el plan **Free**. Usa la rama que contiene el `Dockerfile` y deja la raíz en blanco. El contenedor arranca con el perfil `public-demo` y usa el puerto `PORT` de Render.
+
+- **Health Check Path**: `/api/v1/public-demo/health`.
+- **FRONTEND_ORIGIN**: el origen HTTPS del sitio Angular, sin ruta ni barra final.
+
+La demo sirve únicamente datos ficticios en `GET /api/v1/public-demo/snapshot`. Las rutas de escritura y las consultas privadas quedan bloqueadas en este perfil.
