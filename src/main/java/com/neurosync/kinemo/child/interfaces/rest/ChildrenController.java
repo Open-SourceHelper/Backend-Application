@@ -39,7 +39,7 @@ public class ChildrenController {
             @Valid @RequestBody CreateChildResource input
     ) {
         Long parentId = actor(principal);
-        if (!parentId.equals(input.parentId())) {
+        if (input.parentId() != null && !parentId.equals(input.parentId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Parent ID must match the authenticated account");
         }
         validateBirthDate(input.birthDate());

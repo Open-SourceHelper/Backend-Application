@@ -18,7 +18,7 @@ public final class ChildCommandAssembler {
         if (resource == null || authenticatedParentId == null) {
             throw new IllegalArgumentException("Resource and authenticated parent ID are required");
         }
-        if (!authenticatedParentId.equals(resource.parentId())) {
+        if (resource.parentId() != null && !authenticatedParentId.equals(resource.parentId())) {
             throw new IllegalArgumentException("Parent ID must match the authenticated account");
         }
 
