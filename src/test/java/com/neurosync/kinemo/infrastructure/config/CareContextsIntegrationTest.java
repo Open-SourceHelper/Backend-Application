@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -75,6 +76,25 @@ class CareContextsIntegrationTest {
                 .andExpect(status().isForbidden());
         mvc.perform(get("/api/v1/crisis-alerts/{id}", alert).with(caregiver))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void sharesARealDemoChildAcrossAuthenticatedRoles() throws Exception {
+        String url = "/api/v1/local-demo/session";
+        mvc.perform(get(url)).andExpect(status().isUnauthorized());
+        mvc.perform(get(url).with(httpBasic("parent-demo-001", "demo123"))).andExpect(status().isForbidden());
+        var signedIn = mvc.perform(get(url).with(httpBasic("7001", "demo123")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.role").value("FAMILY"))
+                .andReturn().getResponse();
+        long childId = json.readTree(signedIn.getContentAsString()).path("childId").asLong();
+        mvc.perform(get(url).with(httpBasic("7002", "demo123")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.childId").value(childId))
+                .andExpect(jsonPath("$.role").value("CAREGIVER"));
+        mvc.perform(get(url).with(httpBasic("7003", "demo123")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.childId").value(childId))
+                .andExpect(jsonPath("$.role").value("PSYCHOLOGIST"));
+        mvc.perform(get("/api/v1/children/{id}", childId).with(httpBasic("7002", "demo123")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.firstName").value("Mateo"));
     }
 
     @Test
