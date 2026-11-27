@@ -49,6 +49,19 @@ public class CrisisAlertController {
 
     public record ActivationResponse(CrisisAlertResponse alert, int queuedNotices) {}
 
+    public record SimulatedBraceletRequest(@NotBlank @Size(max = 80) String childId) {}
+
+    /**
+     * Controlled simulator, not a physical device or a medical detection service.
+     * Uses the same authorization and single-open-alert rule as manual SOS.
+     */
+    @PostMapping("/simulated-bracelet-events")
+    public ResponseEntity<ActivationResponse> simulateBracelet(
+            @Valid @RequestBody SimulatedBraceletRequest request, Principal principal) {
+        return activate(new ActivateRequest(request.childId(),
+                "Pulsera simulada: evento de prueba detectado automáticamente."), principal);
+    }
+
     @PostMapping
     public ResponseEntity<ActivationResponse> activate(
             @Valid @RequestBody ActivateRequest request, Principal principal) {
