@@ -24,6 +24,13 @@ import java.util.UUID;
 
 @Configuration
 class CareContextConfiguration {
+    @Bean
+    com.neurosync.kinemo.crisisalert.application.port.ProfessionalAlertAccess professionalAlertAccess(
+            SpringDataProfessionalAssignmentRepository assignments) {
+        return actor -> assignments.findByProfessionalIdAndActiveTrue(actor).stream()
+                .map(item -> item.getChildId()).distinct().toList();
+    }
+
     private static final String LOCAL_DEMO_CHILD = "child-001";
 
     @Bean
